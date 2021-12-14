@@ -35,7 +35,7 @@
                     let content = '    <tr>\n' +
                         '        <td>Name</td>\n' +
                         '        <td>Phone</td>\n' +
-                        '        <td>Provine</td>\n' +
+                        '        <td>Province</td>\n' +
                         '        <td>Edit</td>\n' +
                         '        <td>Delete</td>\n' +
                         '    </tr>';
@@ -48,7 +48,7 @@
         }
 
         function getCustomer(customer) {
-            return `<tr><td >${customer.name}</td><td >${customer.phone}</td><td >${customer.province}</td>` +
+            return `<tr><td >${customer.name}</td><td >${customer.phone}</td><td >${customer.province?.name}</td>` +
                 `<td><a class="editCustomer" href="${customer.id}">Edit</a></td>` +
                 `<td><a class="deleteCustomer" href="${customer.id}">Delete</a></td></tr>`;
         }
@@ -81,7 +81,7 @@
     </script>
 </head>
 <body>
-<table id="add-customer">
+<table id="add-customer" border="1px">
     <tr>
         <td>Name</td>
         <td><input type="text" id="name" placeholder="name"></td>
@@ -103,7 +103,8 @@
 </table>
 
 <h1>Customer List</h1>
-<table id="customerList">
+<table id="customerList" border="1px">
+
     <!--    <tr>-->
     <!--        <td> Name:</td>-->
     <!--        <td> Phone</td>-->
