@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        function addNewCustomer() {
+            let name = $('#name').val();
+            let phone = $('#phone').val();
+            let province = $('#province').val();
+            let newCustomer = {
+                name: name,
+                phone: phone,
+                province: {id: province}
+            }
+            $.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                type: "POST",
+                data: JSON.stringify(newCustomer),
+                url: "http://localhost:8080/customers/create",
+                success: successHandler
+            });
+            event.preventDefault();
+        }
+
+        function successHandler() {
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:8080/customers/list",
+                success: function (data) {
+                    let content = '    <tr>\n' +
+                        '        <td>Name</td>\n' +
+                        '        <td>Phone</td>\n' +
+                        '        <td>Provine</td>\n' +
+                        '        <td>Edit</td>\n' +
+                        '        <td>Delete</td>\n' +
+                        '    </tr>';
+                    for (let i = 0; i < data.length; i++) {
+                        content += getCustomer(data[i]);
+                    }
+                    document.getElementById('customerList').innerHTML = content;
+                }
+            });
+        }
+
+        function getCustomer(customer) {
+            return `<tr><td >${customer.name}</td><td >${customer.phone}</td><td >${customer.province}</td>` +
+                `<td><a class="editCustomer" href="${customer.id}">Edit</a></td>` +
+                `<td><a class="deleteCustomer" href="${customer.id}">Delete</a></td></tr>`;
+        }
+
+        function getAllProvince() {
+            $.ajax({
+                    type: "GET",
+                    url: "http://localhost:8080/provinces",
+                    success: function (data) {
+                        let content = "";
+                        for (let i = 0; i < data.length; i++) {
+                            content += `<option value="${data[i].id}">${data[i].name} </option>`
+                        }
+                        document.getElementById("province").innerHTML = content
+                    }
+                }
+            )
+        }
+
+        function deleteCustomer(a){
+            let id=a.getAttribute("value");
+            $.ajax({
+                type:"DELETE",
+                url:"http://localhost:8080/customer/delete/" +id,
+                success:successHandler
+            })
+        }
+        successHandler();
+        getAllProvince();
+    </script>
+</head>
+<body>
+<table id="add-customer">
+    <tr>
+        <td>Name</td>
+        <td><input type="text" id="name" placeholder="name"></td>
+    </tr>
+    <tr>
+        <td>Phone</td>
+        <td><input type="text" id="phone" placeholder="phone"></td>
+    </tr>
+    <tr>
+        <td>Province</td>
+        <td><select name="" id="province">
+            <!--                <option th:each="p:${provinceList}" th:value="${p.id}" th:text="${p.name}"></option>-->
+        </select></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><input type="submit" onclick="addNewCustomer()"></td>
+    </tr>
+</table>
+
+<h1>Customer List</h1>
+<table id="customerList">
+    <!--    <tr>-->
+    <!--        <td> Name:</td>-->
+    <!--        <td> Phone</td>-->
+    <!--        <td> Province:</td>-->
+    <!--        <td> Edit</td>-->
+    <!--        <td> Delete</td>-->
+    <!--    </tr>-->
+    <!--        <tr th:each="customer:${listCustomer}">-->
+    <!--            <td th:text="${customer.getName()}"></td>-->
+    <!--            <td th:text="${customer.getPhone()}"></td>-->
+    <!--            <td th:if="${customer.getProvince()}" th:text="${customer.getProvince().getName()}"></td>-->
+    <!--            <td th:unless="${beng.province}"></td>-->
+    <!--            <td>-->
+    <!--                <button type="submit" th:value="${customer.id}" onclick="updateCustomer(this)">Edit</button>-->
+    <!--            </td>-->
+    <!--            <td>-->
+    <!--                <button type="submit" th:value="${customer.id}" onclick="delete(this)">Delete</button>-->
+    <!--            </td>-->
+    <!--        </tr>-->
+</table>
+
+
+</body>
