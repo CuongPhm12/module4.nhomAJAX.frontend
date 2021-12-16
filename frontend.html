@@ -48,12 +48,15 @@
         }
 
         function getCustomer(customer) {
-            return `<tr><td >${customer.name}</td><td >${customer.phone}</td><td >${customer.province?.name}</td>` +
-                `<td><a class="editCustomer" href="${customer.id}">Edit</a></td>` +
-                `<td><a class="deleteCustomer" href="${customer.id}">Delete</a></td></tr>`;
+            return `<tr>`+
+                    `<td >${customer.name}</td>`+
+                    `<td >${customer.phone}</td><td >${customer.province?.name}</td>`+
+                    `<td><button value="${customer.id}" onclick="openForm(this)">Edit</button></td>`+
+                    `<td><button value="${customer.id}" onclick="deleteCustomer(this)">Delete</button></td>`+
+                    `</tr>`;
         }
 
-        function getAllProvince() {
+        function getAllProvince(a) {
             $.ajax({
                     type: "GET",
                     url: "http://localhost:8080/provinces",
@@ -62,25 +65,76 @@
                         for (let i = 0; i < data.length; i++) {
                             content += `<option value="${data[i].id}">${data[i].name} </option>`
                         }
-                        document.getElementById("province").innerHTML = content
+                        document.getElementById(a).innerHTML = content
                     }
                 }
             )
+        }
+        function editCustomer(){
+            let id = $('#idEdit').val();
+            let name = $('#nameEdit').val();
+            let phone = $('#phoneEdit').val();
+            let province = $('#provinceEdit').val();
+            let newCustomer = {
+                id:id,
+                name:name,
+                phone:phone,
+                province:{
+                    id:province
+                }
+            };
+            $.ajax({
+                headers:{
+                    'Accept':'application/json',
+                    'Content-Type': 'application/json'
+                },
+                type: "PUT",
+                data:JSON.stringify(newCustomer),
+                url:"http://localhost:8080/customers"+id,
+                success:successHandler
+            })
+            event.preventDefault();
         }
 
         function deleteCustomer(a){
             let id=a.getAttribute("value");
             $.ajax({
                 type:"DELETE",
-                url:"http://localhost:8080/customer/delete/" +id,
+                url:"http://localhost:8080/customers/delete/" +id,
                 success:successHandler
             })
+            event.preventDefault();
         }
+        function openForm(a){
+            let id = a.getAttribute("value");
+            $("#edit-customer").show()
+            $.ajax({
+                type:"GET",
+                url:"http://localhost:8080/customers/"+id,
+                success:function (customer){
+                    $('#idEdit').val(customer.id);
+                    $('#nameEdit').val(customer.name);
+                    $('#phoneEdit').val(customer.phone);
+                    $('#provinceEdit').val(customer.province?.name);
+                }
+            })
+            event.preventDefault();
+        }
+
+
+        function closeForm(){
+            document.getElementById("edit-customer").style.display="none";
+            }
+
         successHandler();
-        getAllProvince();
+        getAllProvince("province");
+        getAllProvince("provinceEdit");
     </script>
 </head>
 <body>
+
+
+<!--add -form -->
 <table id="add-customer" border="1px">
     <tr>
         <td>Name</td>
@@ -126,5 +180,30 @@
     <!--        </tr>-->
 </table>
 
-
+<form id="edit-customer" style="display: none">
+   <h1>Customer Edit Form</h1>
+<table >
+    <tr>
+        <td>Name</td>
+        <td><input type="text" id="nameEdit"></td>
+    </tr>
+    <tr>
+        <td>Phone</td>
+        <td><input type="text" id="phoneEdit"></td>
+    </tr>
+    <tr>
+        <td>Province</td>
+        <td><label for="provinceEdit"></label>
+            <select id="provinceEdit"></select></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><input type="submit" value="Edit" onclick="editCustomer()"></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><input type="button" value="Close" onclick="closeForm()"></td>
+    </tr>
+</table>
+</form>
 </body>
